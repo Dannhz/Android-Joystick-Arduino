@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorPrimary"
+    android:screenOrientation="landscape"
+    tools:context=".MainActivity">
+
+
+        <ImageButton
+            android:id="@+id/btnConexao"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="25dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginTop="25dp"
+            android:background="@drawable/rounded_btn_bt_off"
+            android:contentDescription="@string/btn_conexao"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_bluetooth_disabled"
+            app:tint="#FF6A6A"
+            tools:ignore="VectorDrawableCompat" />
+
+        <ImageButton
+            android:id="@+id/btnTheme"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="25dp"
+            android:background="@drawable/rounded_button"
+            android:contentDescription="@string/btn_tema"
+            app:layout_constraintEnd_toStartOf="@+id/btnCredits"
+            app:layout_constraintStart_toEndOf="@+id/btnConexao"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_baseline_theme"
+            app:tint="?attr/colorSecondary"
+            tools:ignore="VectorDrawableCompat" />
+
+
+        <ImageButton
+            android:id="@+id/btnCredits"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginRight="25dp"
+            android:background="@drawable/rounded_button"
+            android:contentDescription="@string/btn_creditos"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_credits"
+            app:tint="?attr/colorSecondary"
+            tools:ignore="VectorDrawableCompat" />
+
+        <ImageView
+            android:id="@+id/imgLogo"
+            android:layout_width="249dp"
+            android:layout_height="126dp"
+            android:contentDescription="@string/img_logo"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.417"
+            app:srcCompat="@drawable/ic_drone_logo"
+            app:tint="?attr/colorSecondaryVariant"
+            tools:ignore="VectorDrawableCompat" />
+
+        <TextView
+            android:id="@+id/textView8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="serif"
+            android:text="@string/txt_logo"
+            android:textColor="?attr/colorSecondaryVariant"
+            android:textSize="40sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imgLogo" />
+
+        <ImageView
+            android:id="@+id/imgUp2"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="100dp"
+            android:layout_marginLeft="108dp"
+            android:layout_marginBottom="-60dp"
+            android:contentDescription="@string/img_up2"
+            app:layout_constraintBottom_toTopOf="@+id/leftJoystick"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/ic_up2"
+            app:tint="?attr/colorSecondary"
+            tools:ignore="VectorDrawableCompat" />
+
+        <ImageView
+            android:id="@+id/imgUp1"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="100dp"
+            android:layout_marginLeft="108dp"
+            android:layout_marginBottom="-85dp"
+            android:contentDescription="@string/img_up1"
+            app:layout_constraintBottom_toTopOf="@+id/leftJoystick"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/ic_up"
+            app:tint="?attr/colorSecondary"
+            tools:ignore="VectorDrawableCompat" />
+
+        <ImageView
+            android:id="@+id/imgDown1"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="100dp"
+            android:layout_marginLeft="108dp"
+            android:layout_marginBottom="-190dp"
+            android:contentDescription="@string/img_down1"
+            android:rotation="180"
+            app:layout_constraintBottom_toTopOf="@+id/leftJoystick"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/ic_up"
+            app:tint="?attr/colorSecondary"
+            tools:ignore="VectorDrawableCompat" />
+
+        <ImageView
+            android:id="@+id/imgDown2"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="100dp"
+            android:layout_marginLeft="108dp"
+            android:layout_marginBottom="-212dp"
+            android:contentDescription="@string/img_down2"
+            android:rotation="180"
+            app:layout_constraintBottom_toTopOf="@+id/leftJoystick"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/ic_up2"
+            app:tint="?attr/colorSecondary"
+            tools:ignore="VectorDrawableCompat" />
+
+        <ImageView
+            android:id="@+id/imgFwd"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_marginEnd="80.1dp"
+            android:layout_marginRight="84dp"
+            android:layout_marginBottom="188dp"
+            android:contentDescription="@string/img_fwd"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/ic_fwd"
+            app:tint="?attr/colorSecondary"
+            tools:ignore="VectorDrawableCompat" />
+
+        <ImageView
+            android:id="@+id/imgBack"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_marginEnd="80.1dp"
+            android:layout_marginRight="84dp"
+            android:layout_marginBottom="43dp"
+            android:contentDescription="@string/img_back"
+            android:rotation="180"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/ic_fwd"
+            app:tint="?attr/colorSecondary"
+            tools:ignore="VectorDrawableCompat" />
+
+        <ImageView
+            android:id="@+id/imgRotateR"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="168dp"
+            android:layout_marginLeft="170dp"
+            android:layout_marginBottom="105dp"
+            android:contentDescription="@string/img_rotateR"
+            android:rotationY="180"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/ic_flip"
+            app:tint="?attr/colorSecondary"
+            tools:ignore="VectorDrawableCompat" />
+
+        <ImageView
+            android:id="@+id/imgRotateL"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginLeft="170dp"
+            android:layout_marginBottom="105dp"
+            android:contentDescription="@string/img_rotateL"
+            android:rotation="180"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/ic_flip"
+            app:tint="?attr/colorSecondary"
+            tools:ignore="VectorDrawableCompat" />
+
+        <com.zerokol.views.joystickView.JoystickView
+            android:id="@+id/leftJoystick"
+            android:layout_width="238dp"
+            android:layout_height="238dp"
+            android:layout_marginBottom="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:ignore="MissingConstraints" />
+
+        <com.zerokol.views.joystickView.JoystickViewRight
+            android:id="@+id/rightJoystick"
+            android:layout_width="238dp"
+            android:layout_height="238dp"
+            android:layout_marginEnd="-32dp"
+            android:layout_marginRight="32dp"
+            android:layout_marginBottom="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="MissingConstraints" />
+
+
+       >
+
+        <com.example.joystickUltron.SwipeButton
+            android:id="@+id/swipe_btn"
+            android:layout_width="55dp"
+            android:layout_height="200dp"
+            android:layout_marginBottom="24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/rightJoystick"
+            app:layout_constraintHorizontal_bias="0.411"
+            android:alpha=".3"
+            app:layout_constraintStart_toEndOf="@+id/leftJoystick"
+            tools:ignore="MissingClass" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

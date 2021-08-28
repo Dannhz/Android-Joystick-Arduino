@@ -1,0 +1,3 @@
+rootProject.name = "Joystick Ultron"
+include ':app'
+include ':joystickView'

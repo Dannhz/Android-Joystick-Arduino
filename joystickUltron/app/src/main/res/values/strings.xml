@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Joystick Ultron</string>
+
+    <string name="txt_logo">ULTRON</string>
+
+
+    <string name="btn_conexao">Botão para conexão</string>
+    <string name="btn_creditos">Botão para creditos</string>
+    <string name="btn_tema">Botão para tema</string>
+    <string name="btn_lock">Botão bloqueia/desbloqueia</string>
+    <string name="img_logo">Logo Ultron</string>
+    <string name="img_up1">subir 1</string>
+    <string name="img_up2">subir 2</string>
+    <string name="img_down1">descer 1</string>
+    <string name="img_down2">descer 2</string>
+    <string name="img_rotateL">Rotacionar Esq.</string>
+    <string name="img_rotateR">Rotacionar Dir.</string>
+    <string name="img_fwd">Frente</string>
+    <string name="img_back">Trás</string>
+
+</resources>
