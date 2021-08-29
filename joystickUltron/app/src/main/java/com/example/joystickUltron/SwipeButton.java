@@ -1,5 +1,6 @@
 package com.example.joystickUltron;
 
+import com.example.joystickUltron.MainActivity;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
@@ -154,7 +155,6 @@ public class SwipeButton extends RelativeLayout {
                             }
                         }
                         return true;
-
                 }
                 return false;
             }

@@ -1,8 +1,10 @@
 package com.example.joystickUltron;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -10,6 +12,9 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
@@ -37,10 +42,15 @@ public class MainActivity extends AppCompatActivity {
     JoystickView leftJoystick;
     JoystickViewRight rightJoystick;
 
-    ConnectedThread connectedThread;
+    public static ConnectedThread connectedThread;
 
     private static final int SOLICITA_ATIVACAO = 1;
     private static final int SOLICITA_CONEXAO = 2;
+    private static final int MESSAGE_READ = 3;
+
+    Handler handler;
+    StringBuilder dadosBluetooth = new StringBuilder();
+
 
     public static String ultimoComandoEsq = "";
     public static String ultimoComandoDir = "";
@@ -229,6 +239,7 @@ public class MainActivity extends AppCompatActivity {
                 if(conexao){
                     //desconectar
                     try{
+                        connectedThread.enviar("0");
                         meuSocket.close();
                         conexao = false;
                         btnConexao.setImageResource(R.drawable.ic_bluetooth_disabled);
@@ -248,6 +259,33 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        handler = new Handler(){
+            @SuppressLint("HandlerLeak")
+            @Override
+            public void handleMessage(@NonNull Message msg) {
+                if(msg.what == MESSAGE_READ){
+                    String recebidos = (String)msg.obj;
+                    dadosBluetooth.append(recebidos);
+                    int fimInformacao = dadosBluetooth.indexOf("}");
+
+                    if(fimInformacao > 0){
+                        String dadosCompletos = dadosBluetooth.substring(0, fimInformacao);
+                        int tamInformacao = dadosCompletos.length();
+                        if(dadosBluetooth.charAt(0) == '{'){
+                            String dadosFinais = dadosBluetooth.substring(1, tamInformacao);
+                            Log.d("Recebidos", dadosFinais);
+
+                            if(dadosFinais.contains("Ok")){
+                                connectedThread.enviar("rec");
+                            }
+                        }
+
+                        dadosBluetooth.delete(0, dadosBluetooth.length());
+                    }
+                }
+            }
+        };
     }
 
     @Override
@@ -279,7 +317,7 @@ public class MainActivity extends AppCompatActivity {
                         connectedThread = new ConnectedThread(meuSocket);
                         connectedThread.start();
                         Toast.makeText(getApplicationContext(), "Conectado com: " + MAC, Toast.LENGTH_LONG).show();
-
+                        connectedThread.enviar("1");
                     }catch (IOException erro){
                         conexao = false;
                         Toast.makeText(getApplicationContext(), "Erro ocorrido. Detalhes: " + erro, Toast.LENGTH_LONG).show();
@@ -316,7 +354,25 @@ public class MainActivity extends AppCompatActivity {
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
         }
+        public void run() {
+            mmBuffer = new byte[1024];
+            int numBytes; // bytes returned from read()
 
+            // Keep listening to the InputStream until an exception occurs.
+            while (true) {
+                try {
+                    // Read from the InputStream.
+                    numBytes = mmInStream.read(mmBuffer);
+
+                    String dadosBt = new String(mmBuffer, 0, numBytes);
+
+                    // Send the obtained bytes to the UI activity.
+                    handler.obtainMessage(MESSAGE_READ, numBytes, -1, dadosBt).sendToTarget();
+                } catch (IOException e) {
+                    break;
+                }
+            }
+        }
         // Call this from the main activity to send data to the remote device.
         public void enviar(String dadosEnviar) {
             byte[] msgBuffer = dadosEnviar.getBytes();
