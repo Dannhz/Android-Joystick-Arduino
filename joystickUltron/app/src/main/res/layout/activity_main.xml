@@ -232,4 +232,15 @@
             app:layout_constraintStart_toEndOf="@+id/leftJoystick"
             tools:ignore="MissingClass" />
 
+        <TextView
+            android:id="@+id/txtPing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:layout_marginRight="32dp"
+            android:layout_marginBottom="20dp"
+            android:text=""
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/rightJoystick" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

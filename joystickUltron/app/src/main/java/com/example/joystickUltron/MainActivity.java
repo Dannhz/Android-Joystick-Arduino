@@ -31,6 +31,8 @@ import java.util.UUID;
 
 
 public class MainActivity extends AppCompatActivity {
+    TextView txtPing;
+
     private static boolean temaDark = false;
     private static boolean firstLoop = true;
     ImageButton btnCredits;
@@ -78,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
             firstLoop = false;
         }
 
-
+        txtPing = (TextView) findViewById((R.id.txtPing));
         btnTheme = (ImageButton) findViewById(R.id.btnTheme);
         btnCredits = (ImageButton) findViewById(R.id.btnCredits);
 
@@ -169,9 +171,9 @@ public class MainActivity extends AppCompatActivity {
                             ultimoComandoDir = "f-";
                         }
                     }
-                    if((power <= 40) && (ultimoComandoDir != "p")){
-                        connectedThread.enviar("p");
-                        ultimoComandoDir = "p";
+                    if((power <= 40) && (ultimoComandoDir != "P")){
+                        connectedThread.enviar("P");
+                        ultimoComandoDir = "P";
                     }
                 }
             }
@@ -276,11 +278,19 @@ public class MainActivity extends AppCompatActivity {
                             String dadosFinais = dadosBluetooth.substring(1, tamInformacao);
                             Log.d("Recebidos", dadosFinais);
 
-                            if(dadosFinais.contains("Ok")){
-                                connectedThread.enviar("rec");
+                            if(dadosFinais.contains("ping")){
+                                connectedThread.enviar("{pong}");
                             }
                         }
 
+                        if(dadosBluetooth.charAt(0) == '['){
+                            String pingValor = dadosBluetooth.substring(1, tamInformacao);
+                            txtPing.setText("Ping: " + (pingValor) + " ms");
+                            int pingInt = Integer.parseInt((pingValor));
+                            if(pingInt < 200){ txtPing.setTextColor(Color.GREEN);}
+                            else if((pingInt >= 200) && pingInt < 550){txtPing.setTextColor(Color.YELLOW);}
+                            else{ txtPing.setTextColor(Color.RED);}
+                        }
                         dadosBluetooth.delete(0, dadosBluetooth.length());
                     }
                 }
