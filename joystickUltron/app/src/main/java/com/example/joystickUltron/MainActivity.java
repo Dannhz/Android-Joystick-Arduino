@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    @SuppressLint("HandlerLeak")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,11 +91,11 @@ public class MainActivity extends AppCompatActivity {
         rightJoystick = (JoystickViewRight) findViewById(R.id.rightJoystick);
 
 
-        leftJoystick.corBtn = temaDark? "#222222" : "#626262";
-        leftJoystick.corBtnBorder = temaDark? "#166749": "#81b7ff";
+        leftJoystick.corBtn = temaDark? "#191919" : "#626262";
+        leftJoystick.corBtnBorder = temaDark? "#5727A6": "#81b7ff";
 
-        rightJoystick.corBtn = temaDark? "#222222" : "#626262";
-        rightJoystick.corBtnBorder = temaDark? "#166749": "#81b7ff";
+        rightJoystick.corBtn = temaDark? "#191919" : "#626262";
+        rightJoystick.corBtnBorder = temaDark? "#5727A6": "#81b7ff";
 
         btnCredits.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -249,6 +250,7 @@ public class MainActivity extends AppCompatActivity {
                         btnTheme.setAlpha(1f);
                         swipeButton.setAlpha(.3f);
                         btnConexao.setColorFilter(Color.parseColor("#FF6A6A"));
+                        txtPing.setText("");
                         Toast.makeText(getApplicationContext(), "Desconectado", Toast.LENGTH_LONG).show();
                     } catch (IOException erro){
                         Toast.makeText(getApplicationContext(), "Ocorreu um erro." + erro, Toast.LENGTH_LONG).show();
@@ -288,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
                             txtPing.setText("Ping: " + (pingValor) + " ms");
                             int pingInt = Integer.parseInt((pingValor));
                             if(pingInt < 200){ txtPing.setTextColor(Color.GREEN);}
-                            else if((pingInt >= 200) && pingInt < 550){txtPing.setTextColor(Color.YELLOW);}
+                            else if(pingInt >= 200 && pingInt < 550){txtPing.setTextColor(Color.YELLOW);}
                             else{ txtPing.setTextColor(Color.RED);}
                         }
                         dadosBluetooth.delete(0, dadosBluetooth.length());

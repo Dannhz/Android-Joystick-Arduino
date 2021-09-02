@@ -13,22 +13,23 @@
   int x;
   int y;
   int z;
+
   
   //CONSTANTES
   #define intervaloMs 2000 // tempo em ms para realizar o teste contínuo de latência.
   #define intervaloAcelerometro 250 // tempo em ms para a verificação do ângulo do drone.
   #define btTx 10 // Pinagem do Tx
   #define btRx 11 // Pinagem do Rx
-  
+
   //OBJETOS
   SoftwareSerial btSerial(btTx, btRx); 
   AcceleroMMA7361 accelero;
+
 
 void setup() {
   Serial.begin(9600);
   btSerial.begin(9600);
 
-  Serial.begin(9600);
   accelero.begin(4, 5, 6, 7, A0, A1, A2);
   accelero.setARefVoltage(3.3);                   //3.3V para maior precisão
   accelero.setSensitivity(LOW);                   //maior sensibilidade 
@@ -38,7 +39,7 @@ void setup() {
 void loop() {
   msAtual = millis();
   
-  if(checkBt()) {comandoRec = cmdHandler(comandoRec);} // Caso haja um comando recebido, chama a função para tratá-lo.
+  if(cmdListener()) {comandoRec = cmdHandler(comandoRec);} // Caso receba um comando, chama a função para tratá-lo.
   
   if(ligado){
     if(msAtual - ultimoPing >= intervaloMs){
@@ -52,7 +53,7 @@ void loop() {
   }
 }
   
-bool checkBt(){ // Faz uma leitura contínua dos comandos recebidos
+bool cmdListener(){ // Faz uma leitura contínua dos comandos recebidos
   if (btSerial.available() > 0) {
     while (btSerial.available()) {
       char caracter = btSerial.read();
