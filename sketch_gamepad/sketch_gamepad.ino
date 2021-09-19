@@ -1,3 +1,8 @@
+/**
+ * Sketch do Gamepad que servirá como uma espécie de "intermediador" entre o 
+ * Joystick Mobile e o Próprio Drone.
+ */
+
 //LIBS
 #include <SoftwareSerial.h>
 #include <RF24.h>
@@ -6,6 +11,7 @@
   String comandoRec = ""; // comando recebido do celular.
   bool ligado = false; // liga ao desbloquear através do app mobile.
   unsigned long ultimoPing = 0; // armazena o momento em que foi realizado o ultimo ping.
+  unsigned long ultimoPiscaLed = 0; // Piscar led sem usar delay.
   unsigned long msAtual; // obtém o milissegundo atual em cada loop.
   int pingDelay; // tempo em ms 
   String dadoEnvio; // dado que será enviado ao drone
@@ -26,48 +32,60 @@
   #define CMD_PARADO "199"
   
   //CONSTANTES
-  #define intervaloMs 2000 // tempo em ms para realizar o teste contínuo de latência.
-  #define btTx 3 // Pinagem do Tx
-  #define btRx 4 // Pinagem do Rx
-  const byte enderecos[][6] = {"1node", "2node"};
-  byte radioID = 0;
+  #define intervaloMs 3000 // tempo em ms para realizar o teste de latência Mobile <-> Gamepad
+
+  #define ledR 5
+  #define ledG 6
+  #define ledB 7
+  const byte enderecoTransmissao[6] = "65852";
 
   //OBJETOS
-  SoftwareSerial btSerial(btTx, btRx); 
-  RF24 radio(7, 8);
+  SoftwareSerial btSerial(3, 4); 
+  RF24 radio(9, 10);
 
-
-void setup() {
-  Serial.begin(9600);
-  btSerial.begin(9600);
-
-  //COMUNICAÇÃO - GAMEPAD/DRONE -----------
-  #if radioID == 0
-  radio.openWritingPipe(enderecos[0]);
-  radio.openReadingPipe(1, enderecos[1]);
-
-  #else
-  radio.openWritingPipe(enderecos[1]);
-  radio.openReadingPipe(1, enderecos[0]);
-  #endif
-
-  radio.startListening();
+void setLedColor(byte numLed, bool manterAnterior = false){ // Altera a cor do led RGB//
+  if(!manterAnterior){
+    digitalWrite(ledR, 0);
+    digitalWrite(ledG, 0);
+    digitalWrite(ledB, 0);
+  }
+  digitalWrite(numLed, 1);
 }
 
-void loop() {
+void setup() { // put your setup code here, to run once:
+  pinMode(ledR, OUTPUT);
+  pinMode(ledG, OUTPUT);
+  pinMode(ledB, OUTPUT);
+  
+  Serial.begin(9600);
+  btSerial.begin(9600);
+  radio.begin();
+  
+  Serial.println("Gamepad iniciado...");
+  setLedColor(ledR);
+  radio.openWritingPipe(enderecoTransmissao);
+}
+
+void loop() { // put your main code here, to run repeatedly:
   msAtual = millis();
   
   if(mobileListener()) { // Caso receba um comando, chama a função para tratá-lo.
     comandoRec = mobileHandler(comandoRec);
+    ultimoPiscaLed = msAtual; 
   } 
-  if(droneListener()){
-    Serial.println("Recebi dado");
-  }
-  
+//  if(droneListener()){
+//    Serial.println("Recebi dado");
+//  }
+//  
   if(ligado){
     if(msAtual - ultimoPing >= intervaloMs){
-      encaminharComando("{ping}");
+      btSerial.println("{ping}");
       ultimoPing = msAtual;
+    }
+    if(ultimoPiscaLed != 0 && msAtual - ultimoPiscaLed >= 75){
+      Serial.println("Piscou");
+      ultimoPiscaLed = 0;      
+      setLedColor(ledG);
     }
   }
 }
@@ -83,58 +101,62 @@ bool mobileListener(){ // Faz uma leitura contínua dos comandos recebidos pelo 
   }else return false;
 }
 
-String mobileHandler(String cmd){ //Tratamento do comando recebido pelo celular.
+String mobileHandler(String cmd){ // Tratamento do comando recebido pelo celular.
   
   if (cmd.indexOf(CMD_LIGA) >= 0){
     ligado = true;
+    setLedColor(ledG);
     Serial.println("Ligado");
     }
   if (cmd.indexOf(CMD_DESLIGA) >= 0){
     ligado = false;
+    setLedColor(ledR);
     Serial.println("Desligado");
     }
 
   if(ligado){
+    setLedColor(ledB, true);
     if (cmd.indexOf(CMD_CIMA_1) >= 0) {
       Serial.println("Subir + ");
-      encaminharComando(CMD_CIMA_1);
+      transmit(CMD_CIMA_1);   
     }
     if (cmd.indexOf(CMD_CIMA_2) >= 0) {
       Serial.println("Subir ++ ");
-      encaminharComando(CMD_CIMA_2);
+      transmit(CMD_CIMA_2);
     }
     if (cmd.indexOf(CMD_BAIXO_1) >= 0) {
       Serial.println("Descer + ");
-      encaminharComando(CMD_BAIXO_1);
+      transmit(CMD_BAIXO_1);
     }
     if (cmd.indexOf(CMD_BAIXO_2) >= 0) {
       Serial.println("Descer ++ ");
-      encaminharComando(CMD_BAIXO_2);
+      transmit(CMD_BAIXO_2);
     }
     if (cmd.indexOf(CMD_ESTAB) >= 0 ) {
       Serial.println("Estabilizar");
-      encaminharComando(CMD_CIMA_2);
+      transmit(CMD_ESTAB);
     }
     if (cmd.indexOf(CMD_PARADO) >= 0 ) {
       Serial.println("Parado");
-      encaminharComando(CMD_PARADO);
+      transmit(CMD_PARADO);
     }
     if (cmd.indexOf(CMD_FRENTE) >= 0) {
       Serial.println("Frente + ");
-      encaminharComando(CMD_FRENTE);
+      transmit(CMD_FRENTE);
     }
     if (cmd.indexOf(CMD_TRAS) >= 0) {
       Serial.println("Trás +");
-      encaminharComando(CMD_TRAS);
+      transmit(CMD_TRAS);
     }
     if (cmd.indexOf(CMD_ROT_ESQ) >= 0) {
       Serial.println("Rotacionar Esq.");
-      encaminharComando(CMD_ROT_ESQ);
+      transmit(CMD_ROT_ESQ);
     }
     if (cmd.indexOf(CMD_ROT_DIR) >= 0) {
       Serial.println("Rotacionar Dir.");
-      encaminharComando(CMD_ROT_DIR);
+      transmit(CMD_ROT_DIR);
     }
+    if (cmd.indexOf("{pong}") >= 0) {checkPing();}
   }
     return "";
 }
@@ -146,17 +168,13 @@ bool droneListener(){ // Faz uma leitura contínua das mensagens recebidas pelo 
   return false;
 }
 
-void checkPing(){ // encaminha o pacote de dados recebido do drone ao celular.
+void checkPing(){ // Encaminha o pacote de dados recebido do drone ao celular.
   pingDelay = msAtual - ultimoPing;
   btSerial.println("[" + String(pingDelay) + "}");
 }
 
-void encaminharComando(String codComando){
-  radio.stopListening();
-  while(true){
-    if(radio.write(&codComando, sizeof(String))){
-      break;
-    }
-  }
-  radio.startListening();
+void transmit(String codComando){ // transmite o comando para o drone via nrf24l01.
+  int comandoConvertido = codComando.toInt();
+  while(radio.write(&comandoConvertido, sizeof(int))){}
+  Serial.println("Msg enviada.");
 }

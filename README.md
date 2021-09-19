@@ -18,3 +18,10 @@ De forma resumida, o projeto consistirá em: <br>
     * Módulo de rede sem fio NRF24L01.
  
 ![Screenshot](Screenshot.jpg)
+Captura de tela 
+
+![gamepad](circuito_gamepad.png)
+Circuito do gamepad
+
+![drone](circuito_drone.png)
+Circuito do drone

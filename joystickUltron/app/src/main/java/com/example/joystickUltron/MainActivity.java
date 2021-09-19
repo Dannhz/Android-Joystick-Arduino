@@ -39,6 +39,19 @@ public class MainActivity extends AppCompatActivity {
     ImageButton btnConexao;
     ImageButton btnTheme;
 
+    private static final String CMD_DESLIGA = "100";
+    private static final String CMD_LIGA = "101";
+    private static final String CMD_CIMA_1 = "110";
+    private static final String CMD_CIMA_2 = "111";
+    private static final String CMD_BAIXO_1 = "120";
+    private static final String CMD_BAIXO_2 = "121";
+    private static final String CMD_ROT_ESQ = "130";
+    private static final String CMD_ROT_DIR = "140";
+    private static final String CMD_FRENTE = "150";
+    private static final String CMD_TRAS = "160";
+    private static final String CMD_ESTAB = "198";
+    private static final String CMD_PARADO = "199";
+
     SwipeButton swipeButton;
 
     JoystickView leftJoystick;
@@ -161,20 +174,20 @@ public class MainActivity extends AppCompatActivity {
             public void onValueChanged(int angle, int power, int direction) {
                 if(conexao && !SwipeButton.trancado) {
                     if ((angle == 0)) {
-                        if ((power > 40) && ultimoComandoDir != "f+") {
-                            connectedThread.enviar("f+");
-                            ultimoComandoDir = "f+";
+                        if ((power > 40) && ultimoComandoDir != CMD_FRENTE) {
+                            connectedThread.enviar(CMD_FRENTE);
+                            ultimoComandoDir = CMD_FRENTE;
                         }
                     }
                     if ((angle == 180)) {
-                        if ((power > 40) && ultimoComandoDir != "f-") {
-                            connectedThread.enviar("f-");
-                            ultimoComandoDir = "f-";
+                        if ((power > 40) && ultimoComandoDir != CMD_TRAS) {
+                            connectedThread.enviar(CMD_TRAS);
+                            ultimoComandoDir = CMD_TRAS;
                         }
                     }
-                    if((power <= 40) && (ultimoComandoDir != "P")){
-                        connectedThread.enviar("P");
-                        ultimoComandoDir = "P";
+                    if((power <= 40) && (ultimoComandoDir != CMD_PARADO)){
+                        connectedThread.enviar(CMD_PARADO);
+                        ultimoComandoDir = CMD_PARADO;
                     }
                 }
             }
@@ -185,37 +198,37 @@ public class MainActivity extends AppCompatActivity {
             public void onValueChanged(int angle, int power, int direction) {
 
                 if(conexao && !SwipeButton.trancado) {
-                    if ((angle < -43) && (angle > -137) && (power > 40) && ultimoComandoEsq != "r-") {
-                        connectedThread.enviar("r-");
-                        ultimoComandoEsq = "r-";
+                    if ((angle < -43) && (angle > -137) && (power > 40) && ultimoComandoEsq != CMD_ROT_ESQ) {
+                        connectedThread.enviar(CMD_ROT_ESQ);
+                        ultimoComandoEsq = CMD_ROT_ESQ;
                     }
-                    if ( (angle < 137) && (angle > 43)&& (power > 40) && ultimoComandoEsq != "r+") {
-                        connectedThread.enviar("r+");
-                        ultimoComandoEsq = "r+";
+                    if ( (angle < 137) && (angle > 43)&& (power > 40) && ultimoComandoEsq != CMD_ROT_DIR) {
+                        connectedThread.enviar(CMD_ROT_DIR);
+                        ultimoComandoEsq = CMD_ROT_DIR;
                     }
                     if ((angle > -50 && angle < 50)) {
-                        if ((power > 40) && (power < 65) && ultimoComandoEsq != "a+") {
-                            connectedThread.enviar("a+");
-                            ultimoComandoEsq = "a+";
+                        if ((power > 40) && (power < 65) && ultimoComandoEsq != CMD_CIMA_1) {
+                            connectedThread.enviar(CMD_CIMA_1);
+                            ultimoComandoEsq = CMD_CIMA_1;
                         }
-                        if (power >= 65 && ultimoComandoEsq != "A+") {
-                            connectedThread.enviar("A+");
-                            ultimoComandoEsq = "A+";
+                        if (power >= 65 && ultimoComandoEsq != CMD_CIMA_2) {
+                            connectedThread.enviar(CMD_CIMA_2);
+                            ultimoComandoEsq = CMD_CIMA_2;
                         }
                     }
                     if ((angle < -130 || angle > 130)) {
-                        if ((power > 40) && (power < 65) && ultimoComandoEsq != "a-") {
-                            connectedThread.enviar("a-");
-                            ultimoComandoEsq = "a-";
+                        if ((power > 40) && (power < 65) && ultimoComandoEsq != CMD_BAIXO_1 ) {
+                            connectedThread.enviar(CMD_BAIXO_1 );
+                            ultimoComandoEsq = CMD_BAIXO_1 ;
                         }
-                        if (power >= 65 && ultimoComandoEsq != "A-") {
-                            connectedThread.enviar("A-");
-                            ultimoComandoEsq = "A-";
+                        if (power >= 65 && ultimoComandoEsq != CMD_BAIXO_2) {
+                            connectedThread.enviar(CMD_BAIXO_2);
+                            ultimoComandoEsq = CMD_BAIXO_2;
                         }
                     }
-                    if((power <= 40) && (ultimoComandoEsq != "e")){
-                        connectedThread.enviar("e");
-                        ultimoComandoEsq = "e";
+                    if((power <= 40) && (ultimoComandoEsq != CMD_ESTAB)){
+                        connectedThread.enviar(CMD_ESTAB);
+                        ultimoComandoEsq = CMD_ESTAB;
                     }
                 }
             }
@@ -242,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
                 if(conexao){
                     //desconectar
                     try{
-                        connectedThread.enviar("0");
+                        connectedThread.enviar(CMD_DESLIGA);
                         meuSocket.close();
                         conexao = false;
                         btnConexao.setImageResource(R.drawable.ic_bluetooth_disabled);
@@ -329,7 +342,7 @@ public class MainActivity extends AppCompatActivity {
                         connectedThread = new ConnectedThread(meuSocket);
                         connectedThread.start();
                         Toast.makeText(getApplicationContext(), "Conectado com: " + MAC, Toast.LENGTH_LONG).show();
-                        connectedThread.enviar("1");
+                        connectedThread.enviar(CMD_LIGA);
                     }catch (IOException erro){
                         conexao = false;
                         Toast.makeText(getApplicationContext(), "Erro ocorrido. Detalhes: " + erro, Toast.LENGTH_LONG).show();
