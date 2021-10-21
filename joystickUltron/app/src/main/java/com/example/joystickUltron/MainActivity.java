@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +32,13 @@ import java.util.UUID;
 
 
 public class MainActivity extends AppCompatActivity {
+    ImageView imgIcDrone;
+    ImageView imgIcGamepad;
+    ImageView imgBatDrone;
+    ImageView imgBatGamepad;
+
+
+
     TextView txtPing;
 
     private static boolean temaDark = false;
@@ -93,6 +101,11 @@ public class MainActivity extends AppCompatActivity {
                     AppCompatDelegate.MODE_NIGHT_YES);
             firstLoop = false;
         }
+
+        imgIcDrone = (ImageView) findViewById((R.id.imgIcDrone));
+        imgIcGamepad = (ImageView) findViewById((R.id.imgIcGamepad));
+        imgBatDrone = (ImageView) findViewById((R.id.imgBateriaDrone));
+        imgBatGamepad = (ImageView) findViewById((R.id.imgBateriaGamepad));
 
         txtPing = (TextView) findViewById((R.id.txtPing));
         btnTheme = (ImageButton) findViewById(R.id.btnTheme);
@@ -289,7 +302,7 @@ public class MainActivity extends AppCompatActivity {
                     if(fimInformacao > 0){
                         String dadosCompletos = dadosBluetooth.substring(0, fimInformacao);
                         int tamInformacao = dadosCompletos.length();
-                        if(dadosBluetooth.charAt(0) == '{'){
+                        if(dadosBluetooth.charAt(0) == '{'){ // Comandos que começam com Chaves são pedidos de Ping
                             String dadosFinais = dadosBluetooth.substring(1, tamInformacao);
                             Log.d("Recebidos", dadosFinais);
 
@@ -298,13 +311,30 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
 
-                        if(dadosBluetooth.charAt(0) == '['){
+                        if(dadosBluetooth.charAt(0) == '['){ // Comandos que começam com Colchetes é o ms do ping
                             String pingValor = dadosBluetooth.substring(1, tamInformacao);
                             txtPing.setText("Ping: " + (pingValor) + " ms");
                             int pingInt = Integer.parseInt((pingValor));
                             if(pingInt < 200){ txtPing.setTextColor(Color.GREEN);}
                             else if(pingInt >= 200 && pingInt < 550){txtPing.setTextColor(Color.YELLOW);}
                             else{ txtPing.setTextColor(Color.RED);}
+                        }
+                        if(dadosBluetooth.charAt(0) == '('){ // Comandos que começam com Colchetes são dados de bateria do drone e gamepad
+
+                            String msgFormatada = dadosBluetooth.substring(1, tamInformacao);
+                            Toast.makeText(getApplicationContext(), msgFormatada, Toast.LENGTH_SHORT).show();
+                            String[] porcentagensBaterias = msgFormatada.split("\\|");
+                            Toast.makeText(getApplicationContext(), porcentagensBaterias[0] + "++" + porcentagensBaterias[1], Toast.LENGTH_SHORT).show();
+                            float bateriaGamepad = Float.parseFloat(porcentagensBaterias[0]);
+                            float bateriaDrone = Float.parseFloat(porcentagensBaterias[1]);
+
+                            if(bateriaGamepad >= 3) {changeIcon(imgBatGamepad, 3);}
+                            else if(bateriaGamepad < 3 && bateriaGamepad >= 2) {changeIcon(imgBatGamepad, 2);}
+                            else {changeIcon(imgBatGamepad, 1);}
+
+                            if(bateriaDrone >= 3) {changeIcon(imgBatDrone, 3);}
+                            else if(bateriaDrone < 3 && bateriaDrone >= 2) {changeIcon(imgBatDrone, 2);}
+                            else {changeIcon(imgBatDrone, 1);}
                         }
                         dadosBluetooth.delete(0, dadosBluetooth.length());
                     }
@@ -351,6 +381,27 @@ public class MainActivity extends AppCompatActivity {
                 }else{
                     Toast.makeText(getApplicationContext(), "Falha ao obter o Endereço MAC", Toast.LENGTH_LONG).show();
                 }
+        }
+    }
+
+    public void changeIcon(ImageView iconBat, int status){
+        switch(status){
+            case 0:
+                iconBat.setColorFilter(R.attr.colorSecondary);
+                iconBat.setImageResource(R.drawable.ic_bateria0);
+                break;
+            case 1:
+                iconBat.setColorFilter(Color.RED);
+                iconBat.setImageResource(R.drawable.ic_bateria1);
+                break;
+            case 2:
+                iconBat.setColorFilter(Color.YELLOW);
+                iconBat.setImageResource(R.drawable.ic_bateria2);
+                break;
+            case 3:
+                iconBat.setColorFilter(Color.GREEN);
+                iconBat.setImageResource(R.drawable.ic_bateria3);
+                break;
         }
     }
 

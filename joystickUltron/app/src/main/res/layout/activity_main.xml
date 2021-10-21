@@ -12,7 +12,7 @@
             android:id="@+id/imageView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:alpha=".1"
+            android:alpha=".2"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
@@ -269,5 +269,53 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintGuide_begin="20dp" />
+
+        <ImageView
+            android:id="@+id/imgBateriaDrone"
+            android:layout_width="44dp"
+            android:layout_height="27dp"
+            android:layout_marginEnd="60dp"
+            android:layout_marginRight="60dp"
+            app:layout_constraintEnd_toStartOf="@+id/btnCredits"
+            app:layout_constraintTop_toBottomOf="@+id/imgIcDrone"
+            app:srcCompat="@drawable/ic_bateria0"
+            tools:ignore="VectorDrawableCompat" />
+
+        <ImageView
+            android:id="@+id/imgBateriaGamepad"
+            android:layout_width="44dp"
+            android:layout_height="27dp"
+            android:layout_marginStart="55dp"
+            android:layout_marginLeft="55dp"
+            app:layout_constraintStart_toEndOf="@+id/btnTheme"
+            app:layout_constraintTop_toBottomOf="@+id/imgIcGamepad"
+            app:srcCompat="@drawable/ic_bateria0"
+            tools:ignore="VectorDrawableCompat" />
+
+        <ImageView
+            android:id="@+id/imgIcDrone"
+            android:layout_width="46dp"
+            android:layout_height="26dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="60dp"
+            android:layout_marginRight="60dp"
+            app:layout_constraintEnd_toStartOf="@+id/btnCredits"
+            app:layout_constraintTop_toTopOf="@+id/guideline3"
+            app:srcCompat="@drawable/ic_icone_drone"
+            app:tint="?attr/colorSecondary"
+            tools:ignore="VectorDrawableCompat" />
+
+        <ImageView
+            android:id="@+id/imgIcGamepad"
+            android:layout_width="31dp"
+            android:layout_height="26dp"
+            android:layout_marginStart="60dp"
+            android:layout_marginLeft="60dp"
+            android:layout_marginTop="4dp"
+            app:layout_constraintStart_toEndOf="@+id/btnTheme"
+            app:layout_constraintTop_toTopOf="@+id/guideline3"
+            app:srcCompat="@drawable/ic_icone_gamepad"
+            app:tint="?attr/colorSecondary"
+            tools:ignore="VectorDrawableCompat" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

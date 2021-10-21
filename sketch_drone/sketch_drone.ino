@@ -1,9 +1,11 @@
 //LIBS
 #include <RF24.h>
+#include <Wire.h>
 
 //VARIÁVEIS
 int comandoRec;
 unsigned long msAtual; // obtém o milissegundo atual em cada loop.
+int AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ; //Variaveis para armazenar valores dos sensores
 
 //CÓDIGO DE COMANDOS
 #define CMD_DESLIGA "100"
@@ -19,25 +21,41 @@ unsigned long msAtual; // obtém o milissegundo atual em cada loop.
 #define CMD_ESTAB "198"
 #define CMD_PARADO "199"
 
+
 //CONSTANTES
-const byte enderecoRecebimento[6] = "65852";
+const uint64_t pipes[2] = { 0xF0F0F0F0E1LL, 0xF0F0F0F0D2LL };
+//const int MPU=0x68; //Endereco I2C do MPU6050
+
 //OBJETOS
-RF24 radio(9, 10);
+RF24 radio(7, 8);
 
 void setup() {
   Serial.begin(9600);
   Serial.println("Drone iniciado.");
+
+  //MPU
+//  Wire.begin();
+//  Wire.beginTransmission(MPU);
+//  Wire.write(0x6B); 
+//  //Inicializa o MPU-6050
+//  Wire.write(0); 
+//  Wire.endTransmission(true);
+
+  //Radio
   radio.begin();
-  radio.openReadingPipe(0, enderecoRecebimento);
+  radio.setChannel(100);
+  radio.openWritingPipe(pipes[0]);
+  radio.openReadingPipe(1, pipes[1]);
   radio.startListening();
 }
 
 void loop() {
   msAtual = millis();
+  
+//  updateAccelValues();
 
   radioListener();
 }
-
 
 void radioListener() {
   if (radio.available()) {
@@ -71,6 +89,7 @@ void radioHandler(String cmd) {
     Serial.println("RECEBI O COMANDO: ROT - ESQUERDA");
   }
   if (cmd.indexOf(CMD_ROT_DIR) >= 0) {
+    transmit();
     Serial.println("RECEBI O COMANDO: ROT - DIREITA");
   }
   if (cmd.indexOf(CMD_FRENTE) >= 0) {
@@ -85,4 +104,28 @@ void radioHandler(String cmd) {
   if (cmd.indexOf(CMD_PARADO) >= 0) {
     Serial.println("RECEBI O COMANDO: PARADO");
   }
+}
+
+void updateAccelValues(){ // Atualiza os valores do giroscópio e acelerômetro.
+//  Wire.beginTransmission(MPU);
+//  Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
+//  Wire.endTransmission(false);
+//  //Solicita os dados do sensor
+//  Wire.requestFrom(MPU,14,true);  
+//  //Armazena o valor dos sensores nas variaveis correspondentes
+//  AcX=Wire.read()<<8|Wire.read();  //0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)     
+//  AcY=Wire.read()<<8|Wire.read();  //0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
+//  AcZ=Wire.read()<<8|Wire.read();  //0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
+//  Tmp=Wire.read()<<8|Wire.read();  //0x41 (TEMP_OUT_H) & 0x42 (TEMP_OUT_L)
+//  GyX=Wire.read()<<8|Wire.read();  //0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
+//  GyY=Wire.read()<<8|Wire.read();  //0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
+//  GyZ=Wire.read()<<8|Wire.read();  //0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
+}
+
+void transmit(){ // transmite o comando para o drone via nrf24l01.
+  int comandoConvertido = 999;
+  radio.stopListening();
+  while(radio.write(&comandoConvertido, sizeof(int))){}
+  Serial.println("Comando enviado");
+  radio.startListening();
 }

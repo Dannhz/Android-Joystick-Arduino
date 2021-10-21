@@ -11,11 +11,15 @@
   String comandoRec = ""; // comando recebido do celular.
   bool ligado = false; // liga ao desbloquear através do app mobile.
   unsigned long ultimoPing = 0; // armazena o momento em que foi realizado o ultimo ping.
+  unsigned long ultimoBateria = 0; // armazena o momento em que foi realizada a ultima medida de tensão de entrada.
   unsigned long ultimoPiscaLed = 0; // Piscar led sem usar delay.
   unsigned long msAtual; // obtém o milissegundo atual em cada loop.
   int pingDelay; // tempo em ms 
-  String dadoEnvio; // dado que será enviado ao drone
-  String dadoRecebido; // dado que será recebido do drone
+  String dadoEnvio; // dado que será enviado ao drone.
+  String dadoRecebido; // dado que será recebido do drone.
+  float bateriaGamepad = 0; // Armazena a tensão de entrada do pino analógio responsável pela leitura.
+  float bateriaDrone = 0;  // Armazena a tensão de entrada do drone recebida via NRF24L01.
+
 
   //CÓDIGO DE COMANDOS
   #define CMD_DESLIGA "100"
@@ -32,16 +36,19 @@
   #define CMD_PARADO "199"
   
   //CONSTANTES
-  #define intervaloMs 3000 // tempo em ms para realizar o teste de latência Mobile <-> Gamepad
+  #define intervaloPing 3500 // tempo em ms para realizar o teste de latência Mobile <-> Gamepad <-> Drone
+  #define intervaloPiscaLed 75 // tempo em ms para o led piscar
+  #define intervaloBateria 5000 // Tempo em ms para mensurar a % da bateria atual do drone e gamepad
 
   #define ledR 5
   #define ledG 6
   #define ledB 7
-  const byte enderecoTransmissao[6] = "65852";
+  #define pinBateria A0
+  const uint64_t pipes[2] = { 0xF0F0F0F0E1LL, 0xF0F0F0F0D2LL };
 
   //OBJETOS
   SoftwareSerial btSerial(3, 4); 
-  RF24 radio(9, 10);
+  RF24 radio(7, 8);
 
 void setLedColor(byte numLed, bool manterAnterior = false){ // Altera a cor do led RGB//
   if(!manterAnterior){
@@ -60,10 +67,13 @@ void setup() { // put your setup code here, to run once:
   Serial.begin(9600);
   btSerial.begin(9600);
   radio.begin();
+  radio.setChannel(100);
   
   Serial.println("Gamepad iniciado...");
   setLedColor(ledR);
-  radio.openWritingPipe(enderecoTransmissao);
+  radio.openWritingPipe(pipes[1]);
+  radio.openReadingPipe(1, pipes[0]);
+  radio.startListening();
 }
 
 void loop() { // put your main code here, to run repeatedly:
@@ -73,17 +83,21 @@ void loop() { // put your main code here, to run repeatedly:
     comandoRec = mobileHandler(comandoRec);
     ultimoPiscaLed = msAtual; 
   } 
-//  if(droneListener()){
-//    Serial.println("Recebi dado");
-//  }
-//  
+  if(droneListener()){
+    Serial.println("Recebi dado");
+  }
+  
   if(ligado){
-    if(msAtual - ultimoPing >= intervaloMs){
+    if(msAtual - ultimoPing >= intervaloPing){
       btSerial.println("{ping}");
       ultimoPing = msAtual;
     }
+    if(msAtual - ultimoBateria >= intervaloBateria){
+      checkBattery();
+      ultimoBateria = msAtual;
+    }
+      
     if(ultimoPiscaLed != 0 && msAtual - ultimoPiscaLed >= 75){
-      Serial.println("Piscou");
       ultimoPiscaLed = 0;      
       setLedColor(ledG);
     }
@@ -117,43 +131,33 @@ String mobileHandler(String cmd){ // Tratamento do comando recebido pelo celular
   if(ligado){
     setLedColor(ledB, true);
     if (cmd.indexOf(CMD_CIMA_1) >= 0) {
-      Serial.println("Subir + ");
       transmit(CMD_CIMA_1);   
     }
     if (cmd.indexOf(CMD_CIMA_2) >= 0) {
-      Serial.println("Subir ++ ");
       transmit(CMD_CIMA_2);
     }
     if (cmd.indexOf(CMD_BAIXO_1) >= 0) {
-      Serial.println("Descer + ");
       transmit(CMD_BAIXO_1);
     }
     if (cmd.indexOf(CMD_BAIXO_2) >= 0) {
-      Serial.println("Descer ++ ");
       transmit(CMD_BAIXO_2);
     }
     if (cmd.indexOf(CMD_ESTAB) >= 0 ) {
-      Serial.println("Estabilizar");
       transmit(CMD_ESTAB);
     }
     if (cmd.indexOf(CMD_PARADO) >= 0 ) {
-      Serial.println("Parado");
       transmit(CMD_PARADO);
     }
     if (cmd.indexOf(CMD_FRENTE) >= 0) {
-      Serial.println("Frente + ");
       transmit(CMD_FRENTE);
     }
     if (cmd.indexOf(CMD_TRAS) >= 0) {
-      Serial.println("Trás +");
       transmit(CMD_TRAS);
     }
     if (cmd.indexOf(CMD_ROT_ESQ) >= 0) {
-      Serial.println("Rotacionar Esq.");
       transmit(CMD_ROT_ESQ);
     }
     if (cmd.indexOf(CMD_ROT_DIR) >= 0) {
-      Serial.println("Rotacionar Dir.");
       transmit(CMD_ROT_DIR);
     }
     if (cmd.indexOf("{pong}") >= 0) {checkPing();}
@@ -168,13 +172,24 @@ bool droneListener(){ // Faz uma leitura contínua das mensagens recebidas pelo 
   return false;
 }
 
-void checkPing(){ // Encaminha o pacote de dados recebido do drone ao celular.
+void checkPing(){ // Retorna o valor do ping ao celular.
   pingDelay = msAtual - ultimoPing;
   btSerial.println("[" + String(pingDelay) + "}");
+  Serial.println("pingou");
+  delay(20);
+}
+
+void checkBattery(){ // Encaminha os valores da bateria do gamepad e drone ao celular.
+  bateriaGamepad = random(1,450) / 100.0;
+  bateriaDrone = random(1,450) / 100.0;
+  Serial.println("(" + String(bateriaGamepad) + "|" + String(bateriaDrone) + "}");
+  btSerial.println("(" + String(bateriaGamepad) + "|" + String(bateriaDrone) + "}");
 }
 
 void transmit(String codComando){ // transmite o comando para o drone via nrf24l01.
   int comandoConvertido = codComando.toInt();
+  radio.stopListening();
   while(radio.write(&comandoConvertido, sizeof(int))){}
-  Serial.println("Msg enviada.");
+  Serial.println("Comando " + codComando);
+  radio.startListening();
 }
