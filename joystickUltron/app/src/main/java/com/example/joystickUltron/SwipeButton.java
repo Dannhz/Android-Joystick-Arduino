@@ -127,9 +127,6 @@ public class SwipeButton extends RelativeLayout {
                             if (initialY == 0) {
                                 initialY = slidingButton.getY();
                             }
-                            //Encima = 0
-                            // tamanho = 146 - Sliding button
-                            //tamanho total = 550
                             slidingButton.setY(event.getY() - slidingButton.getHeight() / 2);
                             if (slidingButton.getY() < 0) {
                                 slidingButton.setY(0);
@@ -162,11 +159,13 @@ public class SwipeButton extends RelativeLayout {
     }
     private void expandButton() {
         if(trancado){
+
             Toast.makeText(getContext(), "destrancado!", Toast.LENGTH_SHORT).show();
             slidingButton.setImageDrawable(enabledDrawable);
             trancado = false;
         }
         else{
+
             Toast.makeText(getContext(), "trancado!", Toast.LENGTH_SHORT).show();
             slidingButton.setImageDrawable(disabledDrawable);
             trancado = true;

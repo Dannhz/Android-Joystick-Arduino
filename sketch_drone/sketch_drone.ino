@@ -3,7 +3,9 @@
 #include <Wire.h>
 
 //VARIÁVEIS
+bool ligado = false;
 int comandoRec;
+int ultimoComandoRec;
 unsigned long msAtual; // obtém o milissegundo atual em cada loop.
 int AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ; //Variaveis para armazenar valores dos sensores
 
@@ -20,9 +22,10 @@ int AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ; //Variaveis para armazenar valores dos sensores
 #define CMD_TRAS "160"
 #define CMD_ESTAB "198"
 #define CMD_PARADO "199"
-
+#define CMD_LIGA_DRONE "500"
 
 //CONSTANTES
+#define intervaloBateria 5000 // Tempo em ms para mensurar a % da bateria atual do drone
 const uint64_t pipes[2] = { 0xF0F0F0F0E1LL, 0xF0F0F0F0D2LL };
 //const int MPU=0x68; //Endereco I2C do MPU6050
 
@@ -51,17 +54,22 @@ void setup() {
 
 void loop() {
   msAtual = millis();
-  
-//  updateAccelValues();
-
+//  
+////  updateAccelValues();
+//
+  delay(50);
   radioListener();
+//delay(3000);
+//  transmit();
 }
 
-void radioListener() {
+bool radioListener() {
   if (radio.available()) {
     radio.read(&comandoRec, sizeof(int));
     radioHandler(String(comandoRec));
+    
   }
+  return false;
 }
 
 void radioHandler(String cmd) {
@@ -89,7 +97,6 @@ void radioHandler(String cmd) {
     Serial.println("RECEBI O COMANDO: ROT - ESQUERDA");
   }
   if (cmd.indexOf(CMD_ROT_DIR) >= 0) {
-    transmit();
     Serial.println("RECEBI O COMANDO: ROT - DIREITA");
   }
   if (cmd.indexOf(CMD_FRENTE) >= 0) {
@@ -100,9 +107,15 @@ void radioHandler(String cmd) {
   }
   if (cmd.indexOf(CMD_ESTAB) >= 0) {
     Serial.println("RECEBI O COMANDO: ESTAB");
+
   }
   if (cmd.indexOf(CMD_PARADO) >= 0) {
     Serial.println("RECEBI O COMANDO: PARADO");
+  }
+
+  if (cmd.indexOf(CMD_LIGA_DRONE) >= 0) {
+    transmit(500);
+    delay(300);
   }
 }
 
@@ -122,10 +135,10 @@ void updateAccelValues(){ // Atualiza os valores do giroscópio e acelerômetro.
 //  GyZ=Wire.read()<<8|Wire.read();  //0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
 }
 
-void transmit(){ // transmite o comando para o drone via nrf24l01.
-  int comandoConvertido = 999;
+void transmit(int cmd){ // transmite o comando para o drone via nrf24l01.
+  delay(30);
   radio.stopListening();
-  while(radio.write(&comandoConvertido, sizeof(int))){}
-  Serial.println("Comando enviado");
+  radio.write(&cmd, sizeof(int));
   radio.startListening();
+  delay(30);
 }

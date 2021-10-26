@@ -22,9 +22,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.zerokol.views.joystickView.JoystickView;
-import com.zerokol.views.joystickView.JoystickViewRight;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -37,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     ImageView imgBatDrone;
     ImageView imgBatGamepad;
 
-
+    ImageView imgPingGamepad;
 
     TextView txtPing;
 
@@ -47,8 +44,12 @@ public class MainActivity extends AppCompatActivity {
     ImageButton btnConexao;
     ImageButton btnTheme;
 
-    private static final String CMD_DESLIGA = "100";
-    private static final String CMD_LIGA = "101";
+    public int[] comandos = {0,0,0,0};
+    public int[] comandosAnteriores = {1,1,1,1};
+
+    public static boolean pressionado = false;
+    public static final String CMD_DESLIGA = "100";
+    public static final String CMD_LIGA = "101";
     private static final String CMD_CIMA_1 = "110";
     private static final String CMD_CIMA_2 = "111";
     private static final String CMD_BAIXO_1 = "120";
@@ -71,7 +72,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int SOLICITA_CONEXAO = 2;
     private static final int MESSAGE_READ = 3;
 
-    Handler handler;
+    Handler handlerCmdEnvio;
+    Handler handlerBt;
     StringBuilder dadosBluetooth = new StringBuilder();
 
 
@@ -106,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
         imgIcGamepad = (ImageView) findViewById((R.id.imgIcGamepad));
         imgBatDrone = (ImageView) findViewById((R.id.imgBateriaDrone));
         imgBatGamepad = (ImageView) findViewById((R.id.imgBateriaGamepad));
+        imgPingGamepad = (ImageView) findViewById((R.id.imgPingGamepad));
 
         txtPing = (TextView) findViewById((R.id.txtPing));
         btnTheme = (ImageButton) findViewById(R.id.btnTheme);
@@ -184,66 +187,18 @@ public class MainActivity extends AppCompatActivity {
 
         rightJoystick.setOnJoystickMoveListener(new JoystickViewRight.OnJoystickMoveListener() {
             @Override
-            public void onValueChanged(int angle, int power, int direction) {
-                if(conexao && !SwipeButton.trancado) {
-                    if ((angle == 0)) {
-                        if ((power > 40) && ultimoComandoDir != CMD_FRENTE) {
-                            connectedThread.enviar(CMD_FRENTE);
-                            ultimoComandoDir = CMD_FRENTE;
-                        }
-                    }
-                    if ((angle == 180)) {
-                        if ((power > 40) && ultimoComandoDir != CMD_TRAS) {
-                            connectedThread.enviar(CMD_TRAS);
-                            ultimoComandoDir = CMD_TRAS;
-                        }
-                    }
-                    if((power <= 40) && (ultimoComandoDir != CMD_PARADO)){
-                        connectedThread.enviar(CMD_PARADO);
-                        ultimoComandoDir = CMD_PARADO;
-                    }
-                }
+            public void onValueChanged(int xPower, int yPower) {
+                comandos[2] = yPower;
+
             }
         }, rightJoystick.DEFAULT_LOOP_INTERVAL);
 
         leftJoystick.setOnJoystickMoveListener(new JoystickView.OnJoystickMoveListener() {
             @Override
-            public void onValueChanged(int angle, int power, int direction) {
+            public void onValueChanged(int xPower, int yPower) {
+                comandos[0] = yPower;
+                comandos[1] = xPower;
 
-                if(conexao && !SwipeButton.trancado) {
-                    if ((angle < -43) && (angle > -137) && (power > 40) && ultimoComandoEsq != CMD_ROT_ESQ) {
-                        connectedThread.enviar(CMD_ROT_ESQ);
-                        ultimoComandoEsq = CMD_ROT_ESQ;
-                    }
-                    if ( (angle < 137) && (angle > 43)&& (power > 40) && ultimoComandoEsq != CMD_ROT_DIR) {
-                        connectedThread.enviar(CMD_ROT_DIR);
-                        ultimoComandoEsq = CMD_ROT_DIR;
-                    }
-                    if ((angle > -50 && angle < 50)) {
-                        if ((power > 40) && (power < 65) && ultimoComandoEsq != CMD_CIMA_1) {
-                            connectedThread.enviar(CMD_CIMA_1);
-                            ultimoComandoEsq = CMD_CIMA_1;
-                        }
-                        if (power >= 65 && ultimoComandoEsq != CMD_CIMA_2) {
-                            connectedThread.enviar(CMD_CIMA_2);
-                            ultimoComandoEsq = CMD_CIMA_2;
-                        }
-                    }
-                    if ((angle < -130 || angle > 130)) {
-                        if ((power > 40) && (power < 65) && ultimoComandoEsq != CMD_BAIXO_1 ) {
-                            connectedThread.enviar(CMD_BAIXO_1 );
-                            ultimoComandoEsq = CMD_BAIXO_1 ;
-                        }
-                        if (power >= 65 && ultimoComandoEsq != CMD_BAIXO_2) {
-                            connectedThread.enviar(CMD_BAIXO_2);
-                            ultimoComandoEsq = CMD_BAIXO_2;
-                        }
-                    }
-                    if((power <= 40) && (ultimoComandoEsq != CMD_ESTAB)){
-                        connectedThread.enviar(CMD_ESTAB);
-                        ultimoComandoEsq = CMD_ESTAB;
-                    }
-                }
             }
         }, leftJoystick.DEFAULT_LOOP_INTERVAL);
 
@@ -290,57 +245,45 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        handler = new Handler(){
+        handlerBt = new Handler(){
             @SuppressLint("HandlerLeak")
             @Override
             public void handleMessage(@NonNull Message msg) {
                 if(msg.what == MESSAGE_READ){
                     String recebidos = (String)msg.obj;
                     dadosBluetooth.append(recebidos);
-                    int fimInformacao = dadosBluetooth.indexOf("}");
+                    int fimInformacao = dadosBluetooth.indexOf("]");
 
                     if(fimInformacao > 0){
                         String dadosCompletos = dadosBluetooth.substring(0, fimInformacao);
                         int tamInformacao = dadosCompletos.length();
-                        if(dadosBluetooth.charAt(0) == '{'){ // Comandos que começam com Chaves são pedidos de Ping
+                        Log.d("dados completos", dadosCompletos);
+                        if(dadosBluetooth.charAt(0) == '['){ // Comandos que começam com Chaves são pedidos de Ping
                             String dadosFinais = dadosBluetooth.substring(1, tamInformacao);
                             Log.d("Recebidos", dadosFinais);
-
-                            if(dadosFinais.contains("ping")){
-                                connectedThread.enviar("{pong}");
-                            }
                         }
 
-                        if(dadosBluetooth.charAt(0) == '['){ // Comandos que começam com Colchetes é o ms do ping
-                            String pingValor = dadosBluetooth.substring(1, tamInformacao);
-                            txtPing.setText("Ping: " + (pingValor) + " ms");
-                            int pingInt = Integer.parseInt((pingValor));
-                            if(pingInt < 200){ txtPing.setTextColor(Color.GREEN);}
-                            else if(pingInt >= 200 && pingInt < 550){txtPing.setTextColor(Color.YELLOW);}
-                            else{ txtPing.setTextColor(Color.RED);}
-                        }
-                        if(dadosBluetooth.charAt(0) == '('){ // Comandos que começam com Colchetes são dados de bateria do drone e gamepad
 
-                            String msgFormatada = dadosBluetooth.substring(1, tamInformacao);
-                            Toast.makeText(getApplicationContext(), msgFormatada, Toast.LENGTH_SHORT).show();
-                            String[] porcentagensBaterias = msgFormatada.split("\\|");
-                            Toast.makeText(getApplicationContext(), porcentagensBaterias[0] + "++" + porcentagensBaterias[1], Toast.LENGTH_SHORT).show();
-                            float bateriaGamepad = Float.parseFloat(porcentagensBaterias[0]);
-                            float bateriaDrone = Float.parseFloat(porcentagensBaterias[1]);
-
-                            if(bateriaGamepad >= 3) {changeIcon(imgBatGamepad, 3);}
-                            else if(bateriaGamepad < 3 && bateriaGamepad >= 2) {changeIcon(imgBatGamepad, 2);}
-                            else {changeIcon(imgBatGamepad, 1);}
-
-                            if(bateriaDrone >= 3) {changeIcon(imgBatDrone, 3);}
-                            else if(bateriaDrone < 3 && bateriaDrone >= 2) {changeIcon(imgBatDrone, 2);}
-                            else {changeIcon(imgBatDrone, 1);}
-                        }
                         dadosBluetooth.delete(0, dadosBluetooth.length());
                     }
                 }
             }
         };
+
+        handlerCmdEnvio = new Handler();
+        handlerCmdEnvio.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(conexao && pressionado) {
+                    if(comandosAnteriores[0] != comandos[0] ||
+                            comandosAnteriores[1] != comandos[1] ||
+                            comandosAnteriores[2] != comandos[2]) {
+                        enviaMensagem();
+                    }
+                }
+                handlerCmdEnvio.postDelayed(this, 30);
+            }
+        }, 0);
     }
 
     @Override
@@ -371,17 +314,33 @@ public class MainActivity extends AppCompatActivity {
                         swipeButton.setAlpha(1f);
                         connectedThread = new ConnectedThread(meuSocket);
                         connectedThread.start();
-                        Toast.makeText(getApplicationContext(), "Conectado com: " + MAC, Toast.LENGTH_LONG).show();
-                        connectedThread.enviar(CMD_LIGA);
+                        comandos[3] = 1;
+                        enviaMensagem();
+                        Toast.makeText(getApplicationContext(), "Conexão com o gamepad feita com sucesso. Destrave o botão de segurança para sincronizar com o drone.", Toast.LENGTH_LONG).show();
                     }catch (IOException erro){
                         conexao = false;
-                        Toast.makeText(getApplicationContext(), "Erro ocorrido. Detalhes: " + erro, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Não foi possível conectar, verifique se o gamepad está adequadamente ligado ou tente novamente.", Toast.LENGTH_LONG).show();
                     }
 
                 }else{
                     Toast.makeText(getApplicationContext(), "Falha ao obter o Endereço MAC", Toast.LENGTH_LONG).show();
                 }
         }
+    }
+
+    public void enviaMensagem(){
+        String msgEnviada = "{";
+        for (int comando : comandos) {
+            msgEnviada += comando + ";";
+        }
+        msgEnviada += "}";
+        Log.d("Valor atual:", msgEnviada);
+        connectedThread.enviar(msgEnviada);
+        comandosAnteriores[0] = comandos[0];
+        comandosAnteriores[1] = comandos[1];
+        comandosAnteriores[2] = comandos[2];
+        comandosAnteriores[3] = comandos[3];
+        comandos[3] = 0;
     }
 
     public void changeIcon(ImageView iconBat, int status){
@@ -410,7 +369,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private class ConnectedThread extends Thread {
+    public class ConnectedThread extends Thread {
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
         private byte[] mmBuffer; // mmBuffer store for the stream
@@ -443,7 +402,7 @@ public class MainActivity extends AppCompatActivity {
                     String dadosBt = new String(mmBuffer, 0, numBytes);
 
                     // Send the obtained bytes to the UI activity.
-                    handler.obtainMessage(MESSAGE_READ, numBytes, -1, dadosBt).sendToTarget();
+                    handlerBt.obtainMessage(MESSAGE_READ, numBytes, -1, dadosBt).sendToTarget();
                 } catch (IOException e) {
                     break;
                 }

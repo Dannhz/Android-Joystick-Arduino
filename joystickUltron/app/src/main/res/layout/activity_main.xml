@@ -209,7 +209,7 @@
             app:tint="?attr/colorSecondary"
             tools:ignore="VectorDrawableCompat" />
 
-        <com.zerokol.views.joystickView.JoystickView
+        <com.example.joystickUltron.JoystickView
             android:id="@+id/leftJoystick"
             android:layout_width="238dp"
             android:layout_height="238dp"
@@ -218,7 +218,7 @@
             app:layout_constraintStart_toStartOf="parent"
             tools:ignore="MissingConstraints" />
 
-        <com.zerokol.views.joystickView.JoystickViewRight
+        <com.example.joystickUltron.JoystickViewRight
             android:id="@+id/rightJoystick"
             android:layout_width="238dp"
             android:layout_height="238dp"
@@ -244,17 +244,15 @@
             app:layout_constraintStart_toEndOf="@+id/leftJoystick"
             tools:ignore="MissingClass" />
 
+
         <TextView
             android:id="@+id/txtPing"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="32dp"
-            android:layout_marginRight="32dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginTop="3dp"
             android:text=""
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/rightJoystick" />
-
+            app:layout_constraintStart_toEndOf="@+id/imgPingGamepad"
+            app:layout_constraintTop_toBottomOf="@+id/imgBateriaGamepad" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline2"
@@ -316,6 +314,30 @@
             app:layout_constraintTop_toTopOf="@+id/guideline3"
             app:srcCompat="@drawable/ic_icone_gamepad"
             app:tint="?attr/colorSecondary"
+            tools:ignore="VectorDrawableCompat" />
+
+        <ImageView
+            android:id="@+id/imgPingDrone"
+            android:layout_width="20dp"
+            android:layout_height="30dp"
+            android:layout_marginTop="-2dp"
+            android:layout_marginEnd="89dp"
+            android:layout_marginRight="89dp"
+            app:layout_constraintEnd_toStartOf="@+id/btnCredits"
+            app:layout_constraintTop_toBottomOf="@+id/imgBateriaGamepad"
+            app:srcCompat="@drawable/ic_ping"
+            tools:ignore="VectorDrawableCompat" />
+
+        <ImageView
+            android:id="@+id/imgPingGamepad"
+            android:layout_width="20dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="46dp"
+            android:layout_marginLeft="46dp"
+            android:layout_marginTop="-2dp"
+            app:layout_constraintStart_toEndOf="@+id/btnTheme"
+            app:layout_constraintTop_toBottomOf="@+id/imgBateriaGamepad"
+            app:srcCompat="@drawable/ic_ping"
             tools:ignore="VectorDrawableCompat" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
