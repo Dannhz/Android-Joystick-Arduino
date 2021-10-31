@@ -182,11 +182,11 @@ public class JoystickViewRight extends View implements Runnable {
                 onJoystickMoveListener.onValueChanged(geXPower(), getYPower());
         }
         if(event.getAction() == MotionEvent.ACTION_MOVE){
-            if(!MainActivity.pressionado){ MainActivity.pressionado = true;}
+            if(!MainActivity.pressionado && MainActivity.destrancado){ MainActivity.pressionado = true;}
         }
         if (onJoystickMoveListener != null
                 && event.getAction() == MotionEvent.ACTION_DOWN) {
-            if(!MainActivity.pressionado){ MainActivity.pressionado = true;}
+            if(!MainActivity.pressionado && MainActivity.destrancado){ MainActivity.pressionado = true;}
             if (thread != null && thread.isAlive()) {
                 thread.interrupt();
             }

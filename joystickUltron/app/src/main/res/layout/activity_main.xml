@@ -246,13 +246,22 @@
 
 
         <TextView
-            android:id="@+id/txtPing"
+            android:id="@+id/txtPingGamepad"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
-            android:text=""
+            android:text="..."
             app:layout_constraintStart_toEndOf="@+id/imgPingGamepad"
             app:layout_constraintTop_toBottomOf="@+id/imgBateriaGamepad" />
+
+        <TextView
+            android:id="@+id/txtPingDrone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:text="..."
+            app:layout_constraintStart_toEndOf="@+id/imgPingDrone"
+            app:layout_constraintTop_toBottomOf="@+id/imgBateriaDrone" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline2"

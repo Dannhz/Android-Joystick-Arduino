@@ -159,13 +159,13 @@ public class SwipeButton extends RelativeLayout {
     }
     private void expandButton() {
         if(trancado){
-
+            MainActivity.destrancado = true;
             Toast.makeText(getContext(), "destrancado!", Toast.LENGTH_SHORT).show();
             slidingButton.setImageDrawable(enabledDrawable);
             trancado = false;
         }
         else{
-
+            MainActivity.destrancado = false;
             Toast.makeText(getContext(), "trancado!", Toast.LENGTH_SHORT).show();
             slidingButton.setImageDrawable(disabledDrawable);
             trancado = true;
